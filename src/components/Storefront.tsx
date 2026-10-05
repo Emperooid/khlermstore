@@ -28,7 +28,7 @@ import {
 } from "../lib/features/cart/cartSlice";
 import { savedToggled } from "../lib/features/saved/savedSlice";
 import type { RootState } from "../lib/store";
-import { addCartItem, catalogItemToProduct, createCart, createCheckoutQuote, isCoreApiConfigured, listCatalog, resolveFulfillmentContext } from "../lib/coreApi";
+import { addCartItem, catalogItemToProduct, createCart, createCheckoutQuote, customerLogin, customerLogout, customerMe, customerRegister, hasCustomerSession, isCoreApiConfigured, listCatalog, resolveFulfillmentContext, type CustomerProfile } from "../lib/coreApi";
 import { catalogFailed, catalogLoaded, catalogLoading, remoteCartCleared, remoteCartOpened } from "../lib/features/catalog/catalogSlice";
 
 const navItems = [
@@ -441,7 +441,46 @@ export function CheckoutPage() {
 }
 
 export function AccountPage() {
-  return <main className="page-width account-page"><div className="account-welcome"><div><span className="section-kicker">Good to see you</span><h1>Hello, <em>Amaka.</em></h1><p>Your favourite things, one calm place.</p></div><div className="account-avatar">A</div></div><div className="account-grid"><Link href="/orders" className="account-tile tile-blue"><span className="tile-icon">◷</span><strong>Your orders</strong><p>Track a delivery or repeat a good one.</p><span className="tile-arrow">↗</span></Link><Link href="/favorites" className="account-tile tile-pink"><span className="tile-icon">♡</span><strong>Saved things</strong><p>The products you said “later” to.</p><span className="tile-arrow">↗</span></Link><div className="account-tile tile-cream"><span className="tile-icon">⌖</span><strong>Your places</strong><p>Home · Work · That one friend&apos;s house.</p><button className="underlined-button">Manage places</button></div><div className="account-tile tile-green"><span className="tile-icon">✦</span><strong>Pantry plans</strong><p>Less thinking. More dinner.</p><Link href="/plans" className="underlined-button">See your plans</Link></div></div></main>;
+  const [profile, setProfile] = useState<CustomerProfile | null>(null);
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!hasCustomerSession()) return;
+    void customerMe().then(setProfile).catch(() => undefined);
+  }, []);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const result = mode === "login"
+        ? await customerLogin(email, password)
+        : await customerRegister({ displayName, email, password, phone: phone || undefined, locale: "en", marketingConsent: false });
+      setProfile(result.customer);
+      setPassword("");
+    } catch (submissionError) {
+      setError(submissionError instanceof Error ? submissionError.message : "We could not complete that request.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function signOut() {
+    setBusy(true);
+    try { await customerLogout(true); } finally { setProfile(null); setBusy(false); }
+  }
+
+  if (!profile) return <main className="page-width account-page"><div className="account-auth-shell"><div className="account-auth-copy"><span className="section-kicker">Your KlemStore account</span><h1>Good things,<br /><em>kept close.</em></h1><p>Save your places, follow every order and move from one store to another without losing your rhythm.</p><div className="account-auth-points"><span>✓ Secure customer sessions</span><span>✓ Live order history</span><span>✓ One account across stores</span></div></div><form className="account-auth-card" onSubmit={submit}><div className="auth-tabs"><button type="button" className={mode === "login" ? "selected" : ""} onClick={() => { setMode("login"); setError(""); }}>Sign in</button><button type="button" className={mode === "register" ? "selected" : ""} onClick={() => { setMode("register"); setError(""); }}>Create account</button></div><h2>{mode === "login" ? "Welcome back." : "Make it yours."}</h2><p className="auth-card-copy">{mode === "login" ? "Use your customer account to continue." : "Create a secure account for orders and saved places."}</p>{mode === "register" && <><label className="auth-field"><span>Your name</span><input required value={displayName} onChange={(event) => setDisplayName(event.target.value)} placeholder="Amaka Okafor" /></label><label className="auth-field"><span>Phone <small>optional</small></span><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="080 0000 0000" /></label></>}<label className="auth-field"><span>Email address</span><input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" /></label><label className="auth-field"><span>Password</span><input required minLength={8} type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="At least 8 characters" autoComplete={mode === "login" ? "current-password" : "new-password"} /></label>{error && <p className="auth-error">{error}</p>}<button className="primary-button full-button" disabled={busy}>{busy ? "Working…" : mode === "login" ? "Sign in" : "Create account"}<span>→</span></button><p className="auth-footnote">By continuing, you agree to KlemStore&apos;s customer terms.</p></form></div></main>;
+
+  const initials = (profile.displayName || profile.email || "K").slice(0, 1).toUpperCase();
+  return <main className="page-width account-page"><div className="account-welcome"><div><span className="section-kicker">Your customer account</span><h1>Hello, <em>{profile.displayName || "there"}.</em></h1><p>{profile.email} · {profile.emailVerified ? "Email verified" : "Email verification pending"}</p></div><div className="account-avatar">{initials}</div></div><div className="account-session-bar"><span><i /> Signed in securely</span><button className="underlined-button" onClick={signOut} disabled={busy}>{busy ? "Signing out…" : "Sign out"}</button></div><div className="account-grid"><Link href="/orders" className="account-tile tile-blue"><span className="tile-icon">◷</span><strong>Your orders</strong><p>Track a delivery or repeat a good one.</p><span className="tile-arrow">↗</span></Link><Link href="/favorites" className="account-tile tile-pink"><span className="tile-icon">♡</span><strong>Saved things</strong><p>The products you said “later” to.</p><span className="tile-arrow">↗</span></Link><div className="account-tile tile-cream"><span className="tile-icon">⌖</span><strong>Your places</strong><p>Home · Work · That one friend&apos;s house.</p><button className="underlined-button">Manage places</button></div><div className="account-tile tile-green"><span className="tile-icon">✦</span><strong>Pantry plans</strong><p>Less thinking. More dinner.</p><Link href="/plans" className="underlined-button">See your plans</Link></div></div></main>;
 }
 
 export function OrdersPage() {

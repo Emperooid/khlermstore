@@ -2,7 +2,62 @@ import type { Product } from "./data";
 
 const apiBaseUrl = (process.env.NEXT_PUBLIC_KLEMSTORE_API_BASE_URL || "").replace(/\/$/, "");
 const tenantId = process.env.NEXT_PUBLIC_KLEMSTORE_TENANT_ID || "";
-const accessToken = process.env.NEXT_PUBLIC_KLEMSTORE_ACCESS_TOKEN || "";
+const configuredAccessToken = process.env.NEXT_PUBLIC_KLEMSTORE_ACCESS_TOKEN || "";
+const accessTokenKey = "klemstore-customer-access-token";
+const refreshTokenKey = "klemstore-customer-refresh-token";
+
+export type CustomerProfile = {
+  id: string;
+  displayName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  emailVerified: boolean;
+  locale?: string;
+  status?: string;
+};
+
+export type CustomerAuthResponse = {
+  accessToken: string;
+  tokenType: string;
+  expiresIn: number;
+  refreshToken: string;
+  refreshExpiresIn: number;
+  customer: CustomerProfile;
+};
+
+export type CustomerRegisterRequest = {
+  email: string;
+  password: string;
+  displayName: string;
+  phone?: string;
+  locale?: string;
+  marketingConsent?: boolean;
+};
+
+function readToken(key: string, fallback = "") {
+  if (typeof window === "undefined") return fallback;
+  return window.localStorage.getItem(key) || fallback;
+}
+
+function storeTokens(auth: Pick<CustomerAuthResponse, "accessToken" | "refreshToken">) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(accessTokenKey, auth.accessToken);
+  window.localStorage.setItem(refreshTokenKey, auth.refreshToken);
+}
+
+function clearTokens() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(accessTokenKey);
+  window.localStorage.removeItem(refreshTokenKey);
+}
+
+export function hasCustomerSession() {
+  return Boolean(readToken(accessTokenKey, configuredAccessToken));
+}
+
+export function clearCustomerSession() {
+  clearTokens();
+}
 
 export type CoreCatalogItem = {
   productId: string;
@@ -48,16 +103,71 @@ export function getGuestSession() {
   return next;
 }
 
-async function request<T>(path: string, init: RequestInit = {}, idempotent = false): Promise<T> {
+async function refreshCustomerSession() {
+  const refreshToken = readToken(refreshTokenKey);
+  if (!refreshToken) return false;
+  const headers = new Headers({ "Content-Type": "application/json", "X-Tenant-ID": tenantId });
+  const response = await fetch(`${apiBaseUrl}/v1/customer-auth/refresh`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ refreshToken }),
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    clearTokens();
+    return false;
+  }
+  storeTokens(await response.json() as CustomerAuthResponse);
+  return true;
+}
+
+async function request<T>(path: string, init: RequestInit = {}, idempotent = false, retryAuth = true): Promise<T> {
   if (!isCoreApiConfigured()) throw new Error("Klemstore Core API is not configured");
   const headers = new Headers(init.headers);
   headers.set("Content-Type", "application/json");
   headers.set("X-Tenant-ID", tenantId);
-  if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`);
+  const currentAccessToken = readToken(accessTokenKey, configuredAccessToken);
+  if (currentAccessToken) headers.set("Authorization", `Bearer ${currentAccessToken}`);
   if (idempotent) headers.set("Idempotency-Key", crypto.randomUUID());
   const response = await fetch(`${apiBaseUrl}${path}`, { ...init, headers, cache: "no-store" });
+  if (response.status === 401 && retryAuth && !path.startsWith("/v1/customer-auth/")) {
+    if (await refreshCustomerSession()) return request<T>(path, init, idempotent, false);
+  }
   if (!response.ok) throw new Error(`Core API request failed: ${response.status}`);
+  if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
+}
+
+export function customerRegister(payload: CustomerRegisterRequest) {
+  return request<CustomerAuthResponse>("/v1/customer-auth/register", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }).then((auth) => { storeTokens(auth); return auth; });
+}
+
+export function customerLogin(email: string, password: string) {
+  return request<CustomerAuthResponse>("/v1/customer-auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  }).then((auth) => { storeTokens(auth); return auth; });
+}
+
+export function customerMe() {
+  return request<CustomerProfile>("/v1/customer-auth/me");
+}
+
+export function customerLogout(allSessions = false) {
+  return request<void>("/v1/customer-auth/logout", {
+    method: "POST",
+    body: JSON.stringify({ allSessions }),
+  }).finally(clearTokens);
+}
+
+export function customerChangePassword(currentPassword: string, newPassword: string) {
+  return request<CustomerAuthResponse>("/v1/customer-auth/password", {
+    method: "POST",
+    body: JSON.stringify({ currentPassword, newPassword }),
+  }).then((auth) => { storeTokens(auth); return auth; });
 }
 
 export function resolveFulfillmentContext(latitude: number, longitude: number) {
