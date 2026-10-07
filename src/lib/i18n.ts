@@ -1,10 +1,12 @@
+import { uiEnglish, uiExtraEnglish, uiExtraTranslations, uiFlowEnglish, uiFlowTranslations, uiTranslations } from "./i18n.ui";
+
 export const localeOptions = [
-  { code: "en", label: "English", nativeLabel: "English" },
-  { code: "fr", label: "French", nativeLabel: "Français" },
-  { code: "zh", label: "Chinese", nativeLabel: "中文" },
-  { code: "yo", label: "Yoruba", nativeLabel: "Yorùbá" },
-  { code: "ig", label: "Igbo", nativeLabel: "Igbo" },
-  { code: "ha", label: "Hausa", nativeLabel: "Hausa" },
+  { code: "en", label: "English", nativeLabel: "English", short: "EN" },
+  { code: "fr", label: "French", nativeLabel: "Français", short: "FR" },
+  { code: "zh", label: "Chinese", nativeLabel: "中文", short: "中" },
+  { code: "yo", label: "Yoruba", nativeLabel: "Yorùbá", short: "YO" },
+  { code: "ig", label: "Igbo", nativeLabel: "Igbo", short: "IG" },
+  { code: "ha", label: "Hausa", nativeLabel: "Hausa", short: "HA" },
 ] as const;
 
 export type Locale = (typeof localeOptions)[number]["code"];
@@ -110,6 +112,9 @@ const english = {
   backToShop: "Back to shop",
   addToBag: "Add to bag",
   addedToBag: "Added to bag",
+  ...uiEnglish,
+  ...uiExtraEnglish,
+  ...uiFlowEnglish,
 } as const;
 
 export type TranslationKey = keyof typeof english;
@@ -163,6 +168,7 @@ const localizedSectionDescriptions: Partial<Record<Locale, Partial<TranslationDi
 };
 
 for (const locale of localeOptions) Object.assign(translations[locale.code], localizedSectionDescriptions[locale.code]);
+for (const locale of localeOptions) if (locale.code !== "en") { Object.assign(translations[locale.code], uiTranslations[locale.code]); Object.assign(translations[locale.code], uiExtraTranslations[locale.code]); Object.assign(translations[locale.code], uiFlowTranslations[locale.code]); }
 
 export function translate(locale: Locale, key: TranslationKey, values: Record<string, string> = {}) {
   let value = translations[locale][key] || translations.en[key];
