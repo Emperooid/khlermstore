@@ -10,7 +10,7 @@ import { useActiveProducts, useCategoryName, useLocaleCopy } from "./hooks";
 const popular = ["sneakers", "linen", "kitchen", "headphones", "gift"];
 
 /** Search field with live product and department suggestions. */
-export function SearchBox({ autoFocus = false, onDone, className = "header-search" }: { autoFocus?: boolean; onDone?: () => void; className?: string }) {
+export function SearchBox({ autoFocus = false, onDone, className = "search-suggest" }: { autoFocus?: boolean; onDone?: () => void; className?: string }) {
   const { t } = useLocaleCopy();
   const router = useRouter();
   const categoryName = useCategoryName();
@@ -47,15 +47,18 @@ export function SearchBox({ autoFocus = false, onDone, className = "header-searc
 
   return (
     <form className={className} onSubmit={submit} role="search" ref={rootRef}>
-      <input
-        name="q" value={query} autoFocus={autoFocus} autoComplete="off" placeholder={t("searchProducts")} aria-label={t("searchProducts")}
-        onChange={(event) => { setQuery(event.target.value); setOpen(true); setHighlight(-1); }} onFocus={() => setOpen(true)}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") setOpen(false);
-          if (event.key === "ArrowDown") { event.preventDefault(); setHighlight((value) => Math.min(links.length - 1, value + 1)); }
-          if (event.key === "ArrowUp") { event.preventDefault(); setHighlight((value) => Math.max(-1, value - 1)); }
-        }}
-      />
+      <div className="hero-search-input">
+        <Icon name="search" size={20} />
+        <input
+          name="q" value={query} autoFocus={autoFocus} autoComplete="off" placeholder={t("searchProducts")} aria-label={t("searchProducts")}
+          onChange={(event) => { setQuery(event.target.value); setOpen(true); setHighlight(-1); }} onFocus={() => setOpen(true)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") setOpen(false);
+            if (event.key === "ArrowDown") { event.preventDefault(); setHighlight((value) => Math.min(links.length - 1, value + 1)); }
+            if (event.key === "ArrowUp") { event.preventDefault(); setHighlight((value) => Math.max(-1, value - 1)); }
+          }}
+        />
+      </div>
       <button type="submit" aria-label={t("search")}><Icon name="search" size={19} /></button>
       {open && (
         <div className="suggest" role="listbox">

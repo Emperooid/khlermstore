@@ -35,7 +35,7 @@ import {
 import { savedToggled } from "../lib/features/saved/savedSlice";
 import { cartOpened, quickViewOpened } from "../lib/features/ui/uiSlice";
 import type { RootState } from "../lib/store";
-import { addCartItem, catalogItemToProduct, createCart, createCheckoutQuote, isCoreApiConfigured, listCatalog, resolveFulfillmentContext } from "../lib/coreApi";
+import { addCartItem, catalogItemToProduct, createCart, createCheckoutQuote, customerLogin, customerLogout, customerMe, customerRegister, hasCustomerSession, isCoreApiConfigured, listCatalog, resolveFulfillmentContext, type CustomerProfile } from "../lib/coreApi";
 import { catalogFailed, catalogLoaded, catalogLoading, remoteCartCleared, remoteCartOpened } from "../lib/features/catalog/catalogSlice";
 
 const navItems = [
@@ -188,11 +188,10 @@ function SiteHeader() {
   const [locationInput, setLocationInput] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
-  const [mobileSearch, setMobileSearch] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
   const activeLocation = useSelector((state: RootState) => state.context.current?.displayLabel);
 
-  useEffect(() => { setMenuOpen(false); setMobileSearch(false); setCategoriesOpen(false); }, [pathname]);
+  useEffect(() => { setMenuOpen(false); setCategoriesOpen(false); }, [pathname]);
   useEffect(() => {
     if (!categoriesOpen) return;
     const onPointer = (event: MouseEvent) => { if (!navRef.current?.contains(event.target as Node)) setCategoriesOpen(false); };
@@ -232,13 +231,6 @@ function SiteHeader() {
     setLocationInput("");
   };
 
-  const submitSearch = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const query = String(new FormData(event.currentTarget).get("q") || "").trim();
-    setMobileSearch(false);
-    router.push(query ? `/shop?q=${encodeURIComponent(query)}` : "/shop");
-  };
-
   const navLinks = [
     { href: "/", label: t("home"), active: pathname === "/" },
     { href: "/shop", label: t("shop"), active: pathname === "/shop" },
@@ -252,32 +244,28 @@ function SiteHeader() {
       <header className="site-header">
         <div className="page-width header-row">
           <button className="icon-button menu-button" onClick={() => setMenuOpen(true)} aria-label={t("openMenu")}><Icon name="menu" size={22} /></button>
-          <Link href="/" className="brand" aria-label="KlemStore home">
-            <img src="/klemstore-logo.png" alt="KlemStore" className="brand-image" />
-          </Link>
-
-          <SearchBox />
-
-          <div className="header-actions">
-            <button className="icon-button search-button" onClick={() => setMobileSearch((open) => !open)} aria-label={t("search")}><Icon name="search" size={21} /></button>
-            <Link href="/account" className="header-action" aria-label={t("yourAccount")}><Icon name="user" size={22} /><span>{t("account")}</span></Link>
-            <Link href="/favorites" className="header-action" aria-label={`${t("saved")} · ${savedCount}`}><Icon name="heart" size={22} /><span>{t("saved")}</span>{savedCount > 0 && <i className="count-dot">{savedCount}</i>}</Link>
-            <button className="header-action cart-trigger" data-cart-target onClick={() => dispatch(cartOpened())} aria-label={`${t("bag")} · ${cartCount}`}><Icon name="bag" size={22} /><span>{t("bag")}</span><i className="count-dot" key={cartCount}>{cartCount}</i></button>
+          <Link href="/" className="brand" aria-label="KlemStore home"><img src="/klemstore-logo.png" alt="KlemStore" className="brand-image" /></Link>
+          <div className="header-location-right">
+            <button className="location-pill" onClick={() => setLocationOpen(true)} aria-label={`${t("change")} ${t("deliveringTo").toLowerCase()}`}>
+              <span className="location-pin"><Icon name="pin" size={20} /><i className="location-live" aria-hidden="true" /></span>
+              <span className="location-copy"><small>{t("deliveringTo")}</small><strong>{activeLocation || "Ikeja, Lagos"}</strong></span>
+              <span className="location-cta">{t("change")}</span>
+            </button>
           </div>
         </div>
 
-        {mobileSearch && <div className="page-width mobile-search"><SearchBox className="header-search mobile" autoFocus onDone={() => setMobileSearch(false)} /></div>}
-
         <div className="header-nav-bar" ref={navRef}>
           <div className="page-width header-nav-row">
-            <button className="location-pill" onClick={() => setLocationOpen(true)} aria-label={`${t("change")} ${t("deliveringTo").toLowerCase()}`}>
-              <Icon name="pin" size={17} /><span><small>{t("deliveringTo")}</small><strong>{activeLocation || "Ikeja, Lagos"}</strong></span><Icon name="chevron" size={14} />
-            </button>
+            <LanguageSwitcher align="left" />
             <nav className="header-nav" aria-label="Main navigation">
               {navLinks.map((link) => <Link key={link.href} href={link.href} className={link.active ? "nav-link active" : "nav-link"}>{link.label}</Link>)}
               <button type="button" className={categoriesOpen ? "nav-link nav-button open" : "nav-link nav-button"} onClick={() => setCategoriesOpen((open) => !open)} aria-expanded={categoriesOpen} aria-haspopup="true">{t("categoriesNav")} <Icon name="chevron" size={14} /></button>
             </nav>
-            <LanguageSwitcher />
+            <div className="header-actions">
+              <Link href="/account" className="header-action" aria-label={t("yourAccount")}><Icon name="user" size={22} /><span>{t("account")}</span></Link>
+              <Link href="/favorites" className="header-action" aria-label={`${t("saved")} · ${savedCount}`}><Icon name="heart" size={22} /><span>{t("saved")}</span>{savedCount > 0 && <i className="count-dot">{savedCount}</i>}</Link>
+              <button className="header-action cart-trigger" data-cart-target onClick={() => dispatch(cartOpened())} aria-label={`${t("bag")} · ${cartCount}`}><Icon name="bag" size={22} /><span>{t("bag")}</span><i className="count-dot" key={cartCount}>{cartCount}</i></button>
+            </div>
           </div>
           {categoriesOpen && (
             <div className="mega-menu">
@@ -417,20 +405,39 @@ function SectionTitle({ title, copy, href, linkLabel }: { kicker?: string; title
 
 function HomeHero() {
   const { t } = useLocaleCopy();
-  return <section className="commerce-hero">
-    <img className="hero-photo" src="/images/hero.png" alt="" fetchPriority="high" />
+  const [activeSlide, setActiveSlide] = useState(0);
+  const slides = [
+    { image: "/images/hero/tech.jpg", position: "center", eyebrow: "TOOLS FOR YOUR NEXT MOVE", line1: "Better gear,", line2: "right nearby.", copy: "Shop phones, laptops, audio and useful equipment from trusted local stores." },
+    { image: "/images/hero/grocery.jpg", position: "center", eyebrow: "GOOD THINGS, NEARBY", line1: "Fresh picks,", line2: "ready for home.", copy: "Fill your kitchen with fresh food and everyday essentials, delivered when you need them." },
+    { image: "/images/hero/store.jpg", position: "center", eyebrow: "A WORLD OF LOCAL FINDS", line1: "More choice,", line2: "closer to home.", copy: "Explore useful things for work, home and everyday life from stores around you." },
+  ];
+  useEffect(() => {
+    const timer = window.setInterval(() => setActiveSlide((slide) => (slide + 1) % slides.length), 6000);
+    return () => window.clearInterval(timer);
+  }, [slides.length]);
+  const slide = slides[activeSlide];
+  return <section className="commerce-hero" aria-roledescription="carousel" aria-label="KlemStore highlights">
+    {slides.map((item, index) => <img key={item.image} className={index === activeSlide ? "hero-photo active" : "hero-photo"} style={{ objectPosition: item.position }} src={item.image} alt="" aria-hidden={index !== activeSlide} fetchPriority={index === 0 ? "high" : "low"} />)}
     <div className="hero-wash" />
     <div className="page-width commerce-hero-inner">
       <div className="commerce-hero-copy">
-        <span className="hero-eyebrow">{t("heroEyebrow")}</span>
-        <h1><span className="line">{t("heroLine1")}</span><span className="line">{t("heroLine2")}</span></h1>
-        <p>{t("heroSub")}</p>
+        <span className="hero-eyebrow">{slide.eyebrow}</span>
+        <h1><span className="line">{slide.line1}</span><span className="line">{slide.line2}</span></h1>
+        <p>{slide.copy}</p>
+      </div>
+      <div className="hero-search">
+        <SearchBox className="hero-search-field" />
+      </div>
+      <div className="commerce-hero-copy">
         <Link href="/shop" className="primary-button hero-cta">{t("shopEverything")} <Icon name="arrow" size={18} /></Link>
         <div className="hero-proof">
           <span className="proof-item"><Icon name="leaf" size={26} /><span>{t("trustCurated")}</span></span>
           <span className="proof-item"><Icon name="pin" size={26} /><span>{t("trustLocal")}</span></span>
           <span className="proof-item"><Icon name="star" size={26} /><span>{t("trustLoved")}</span></span>
         </div>
+      </div>
+      <div className="hero-controls" aria-label="Hero slides">
+        {slides.map((item, index) => <button key={item.image} type="button" className={index === activeSlide ? "hero-dot active" : "hero-dot"} onClick={() => setActiveSlide(index)} aria-label={`Show slide ${index + 1}`} aria-current={index === activeSlide} />)}
       </div>
       <p className="hero-script" aria-hidden="true">Small choices,<br />big impact <Icon name="heart" size={22} /></p>
     </div>
@@ -797,14 +804,81 @@ export function CheckoutPage() {
 }
 
 export function AccountPage() {
+  const [profile, setProfile] = useState<CustomerProfile | null>(null);
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    if (!hasCustomerSession()) { setChecking(false); return; }
+    void customerMe().then(setProfile).catch(() => undefined).finally(() => setChecking(false));
+  }, []);
+
+  async function submitAuth(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const result = mode === "login"
+        ? await customerLogin(email, password)
+        : await customerRegister({ displayName, email, password, phone: phone || undefined, locale: "en", marketingConsent: false });
+      setProfile(result.customer);
+      setPassword("");
+    } catch (submissionError) {
+      setError(submissionError instanceof Error ? submissionError.message : "We could not complete that request.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function signOut() {
+    setBusy(true);
+    try { await customerLogout(true); } finally { setProfile(null); setBusy(false); }
+  }
+
+  if (checking) return <main className="page-width account-page">
+    <div className="empty-page"><span className="empty-emoji"><Icon name="user" size={30} /></span><h2>One moment…</h2><p>Checking your customer session.</p></div>
+  </main>;
+
+  if (!profile) return <main className="page-width account-page">
+    <PageHeading title="My account" copy="Sign in to follow orders and keep your saved items." crumbs={[{ label: "Home", href: "/" }, { label: "Account" }]} />
+    <div className="account-auth-shell">
+      <div className="account-auth-copy"><span className="section-kicker">Your KlemStore account</span><h1>Good things,<br /><em>kept close.</em></h1><p>Save your places, follow every order and move from one store to another without losing your rhythm.</p><div className="account-auth-points"><span>✓ Secure customer sessions</span><span>✓ Live order history</span><span>✓ One account across stores</span></div></div>
+      <form className="account-auth-card" onSubmit={submitAuth}>
+        <div className="auth-tabs">
+          <button type="button" className={mode === "login" ? "selected" : ""} onClick={() => { setMode("login"); setError(""); }}>Sign in</button>
+          <button type="button" className={mode === "register" ? "selected" : ""} onClick={() => { setMode("register"); setError(""); }}>Create account</button>
+        </div>
+        <h2>{mode === "login" ? "Welcome back." : "Make it yours."}</h2>
+        <p className="auth-card-copy">{mode === "login" ? "Use your customer account to continue." : "Create a secure account for orders and saved places."}</p>
+        {mode === "register" && <>
+          <label className="auth-field"><span>Your name</span><input required value={displayName} onChange={(event) => setDisplayName(event.target.value)} placeholder="Amaka Okafor" /></label>
+          <label className="auth-field"><span>Phone <small>optional</small></span><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="080 0000 0000" /></label>
+        </>}
+        <label className="auth-field"><span>Email address</span><input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" /></label>
+        <label className="auth-field"><span>Password</span><input required minLength={8} type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="At least 8 characters" autoComplete={mode === "login" ? "current-password" : "new-password"} /></label>
+        {error && <p className="auth-error">{error}</p>}
+        <button className="primary-button full-button" disabled={busy}>{busy ? "Working…" : mode === "login" ? "Sign in" : "Create account"}<Icon name="arrow" size={18} /></button>
+        <p className="auth-footnote">By continuing, you agree to KlemStore&apos;s customer terms.</p>
+      </form>
+    </div>
+  </main>;
+
   const tiles = [
     { href: "/orders", icon: "box", title: "Your orders", copy: "Track a delivery or buy something again." },
     { href: "/favorites", icon: "heart", title: "Saved items", copy: "Products you want to come back to." },
     { href: "/help", icon: "pin", title: "Addresses", copy: "Home, work and other places you ship to." },
     { href: "/plans", icon: "refresh", title: "Repeat plans", copy: "Schedule the things you always reorder." },
   ] as const;
+  const initials = (profile.displayName || profile.email || "K").slice(0, 1).toUpperCase();
   return <main className="page-width account-page">
-    <div className="account-welcome"><div className="account-avatar">A</div><div><span className="section-kicker">My account</span><h1>Hello, Amaka</h1><p>Manage your orders, saved items and delivery details.</p></div></div>
+    <div className="account-welcome"><div className="account-avatar">{initials}</div><div><span className="section-kicker">My account</span><h1>Hello, {profile.displayName || "there"}</h1><p>{profile.email} · {profile.emailVerified ? "Email verified" : "Email verification pending"}</p></div></div>
+    <div className="account-session-bar"><span><i /> Signed in securely</span><button className="underlined-button" onClick={signOut} disabled={busy}>{busy ? "Signing out…" : "Sign out"}</button></div>
     <div className="account-grid">{tiles.map((tile) => <Link key={tile.title} href={tile.href} className="account-tile"><span className="tile-icon"><Icon name={tile.icon} size={22} /></span><strong>{tile.title}</strong><p>{tile.copy}</p><span className="tile-arrow"><Icon name="arrow" size={18} /></span></Link>)}</div>
   </main>;
 }
