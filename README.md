@@ -23,3 +23,5 @@ Redux Toolkit is the one global client-state standard. It owns the current fulfi
 Run with `npm install` then `npm run dev`. The supplied brand asset lives at `public/klemstore-logo.png`. Configure the versioned core API base URL through the server/client API boundary; never expose Google server keys or SyntriCore credentials in this app.
 
 For local API wiring, copy `.env.local.example` to `.env.local`, set the development tenant UUID, and run the Core API with `KLEMSTORE_ALLOW_DEV_TENANT_HEADER=true`. The storefront resolves the delivery context, loads the active catalog, creates a guest cart, synchronizes additions, and requests a checkout quote when the API is available; it keeps the bundled catalogue as a safe offline fallback.
+
+Customer sign-in and registration are available from `/account`. The browser stores the short-lived access token and rotating refresh token in its customer session storage, refreshes once after an expired access token, and clears the session after logout or refresh failure. Set `NEXT_PUBLIC_KLEMSTORE_API_BASE_URL` and `NEXT_PUBLIC_KLEMSTORE_TENANT_ID` for the same tenant as the Core API; do not put provider secrets in this app.

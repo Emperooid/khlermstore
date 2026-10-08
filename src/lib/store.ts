@@ -4,6 +4,7 @@ import { cartSlice } from "./features/cart/cartSlice";
 import { savedSlice } from "./features/saved/savedSlice";
 import { localeSlice } from "./features/locale/localeSlice";
 import { catalogSlice } from "./features/catalog/catalogSlice";
+import { uiSlice } from "./features/ui/uiSlice";
 
 export type RootState = {
   context: ReturnType<typeof contextSlice.reducer>;
@@ -11,6 +12,7 @@ export type RootState = {
   saved: ReturnType<typeof savedSlice.reducer>;
   locale: ReturnType<typeof localeSlice.reducer>;
   catalog: ReturnType<typeof catalogSlice.reducer>;
+  ui: ReturnType<typeof uiSlice.reducer>;
 };
 
 export const makeStore = (preloadedState?: RootState) =>
@@ -21,6 +23,7 @@ export const makeStore = (preloadedState?: RootState) =>
       saved: savedSlice.reducer,
       locale: localeSlice.reducer,
       catalog: catalogSlice.reducer,
+      ui: uiSlice.reducer,
     },
     preloadedState,
     // Server data belongs in Next.js request fetches or a client cache layer;

@@ -11,7 +11,10 @@ export const savedSlice = createSlice({
         ? state.slugs.filter((slug) => slug !== action.payload)
         : [...state.slugs, action.payload];
     },
+    savedHydrated: (state, action: PayloadAction<string[]>) => {
+      state.slugs = action.payload;
+    },
   },
 });
 
-export const { savedToggled } = savedSlice.actions;
+export const { savedToggled, savedHydrated } = savedSlice.actions;

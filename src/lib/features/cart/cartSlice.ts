@@ -7,6 +7,7 @@ export type CartLine = {
   price: number;
   unit: string;
   emoji: string;
+  image?: string;
   tone: string;
   quantity: number;
 };
@@ -42,10 +43,13 @@ export const cartSlice = createSlice({
     cartCleared: (state) => {
       state.lines = [];
     },
+    cartHydrated: (state, action: PayloadAction<CartLine[]>) => {
+      state.lines = action.payload;
+    },
   },
 });
 
-export const { itemAdded, itemRemoved, quantityChanged, cartCleared } = cartSlice.actions;
+export const { itemAdded, itemRemoved, quantityChanged, cartCleared, cartHydrated } = cartSlice.actions;
 
 export const selectCartLines = (state: { cart: CartState }) => state.cart.lines;
 export const selectCartCount = (state: { cart: CartState }) =>
