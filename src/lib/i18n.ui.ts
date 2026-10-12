@@ -446,13 +446,14 @@ export const pageCopyEnglish = {
   orderConfirmed: "Order confirmed", orderConfirmedCopy: "Thank you. We're getting your good things ready.",
   ordersTotal: "03 total",
   qtyDecrease: "Decrease quantity", qtyIncrease: "Increase quantity",
-  langChoose: "Choose language",
+  langChoose: "Choose language", stripPause: "Pause auto-scroll", stripPlay: "Resume auto-scroll",
 };
 export type PageCopyKey = keyof typeof pageCopyEnglish;
 
 // Translations for the page-level copy above.
 export const pageCopyTranslations: Record<Exclude<UiLocale, "en">, Record<PageCopyKey, string>> = {
   fr: {
+    stripPause: 'Mettre en pause le défilement automatique', stripPlay: 'Reprendre le défilement automatique',
     hero1Eyebrow: 'Des outils pour avancer',
     hero1Line1: 'Du meilleur matériel,',
     hero1Line2: 'à deux pas d\'ici.',
@@ -497,6 +498,7 @@ export const pageCopyTranslations: Record<Exclude<UiLocale, "en">, Record<PageCo
     qtyIncrease: 'Augmenter la quantité', langChoose: 'Choisir la langue',
   },
   zh: {
+    stripPause: '暂停自动滚动', stripPlay: '继续自动滚动',
     hero1Eyebrow: '为你的下一步，备好工具',
     hero1Line1: '更好的装备，',
     hero1Line2: '就在附近。',
@@ -541,6 +543,7 @@ export const pageCopyTranslations: Record<Exclude<UiLocale, "en">, Record<PageCo
     qtyIncrease: '增加数量', langChoose: '选择语言',
   },
   yo: {
+    stripPause: 'Dá ìwọ̀n yíyí dúró', stripPlay: 'Tẹ̀síwájú ìwọ̀n yíyí',
     hero1Eyebrow: 'Àwọn irinṣẹ́ fún ìgbésẹ̀ rẹ tó ń bọ̀',
     hero1Line1: 'Ohun èlò tó dára,',
     hero1Line2: 'nítòsí rẹ.',
@@ -585,6 +588,7 @@ export const pageCopyTranslations: Record<Exclude<UiLocale, "en">, Record<PageCo
     qtyIncrease: 'Pọ̀ si iye', langChoose: 'Yan èdè',
   },
   ig: {
+    stripPause: 'Kwụsịtụ mmegharị akpaaka', stripPlay: 'Gaa n\'ihu na mmegharị akpaaka',
     hero1Eyebrow: 'Ngwa maka nzọụkwụ gị ọzọ',
     hero1Line1: 'Ngwa ka mma,',
     hero1Line2: 'dị nnọọ nso.',
@@ -629,6 +633,7 @@ export const pageCopyTranslations: Record<Exclude<UiLocale, "en">, Record<PageCo
     qtyIncrease: 'Bawanye ọnụọgụ', langChoose: 'Họrọ asụsụ',
   },
   ha: {
+    stripPause: 'Dakatar da gungurawa ta atomatik', stripPlay: 'Ci gaba da gungurawa ta atomatik',
     hero1Eyebrow: 'Kayan aiki don matakinka na gaba',
     hero1Line1: 'Kaya mafi kyau,',
     hero1Line2: 'kusa da kai.',
