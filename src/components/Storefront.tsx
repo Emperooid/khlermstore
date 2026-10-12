@@ -102,7 +102,7 @@ function LocaleBootstrap() {
   return null;
 }
 
-function LanguageSwitcher({ align = "right" }: { align?: "left" | "right" }) {
+function LanguageSwitcher({ placement = "down" }: { placement?: "down" | "up" }) {
   const { t } = useLocaleCopy();
   const dispatch = useDispatch();
   const locale = useSelector((state: RootState) => state.locale.language);
@@ -132,7 +132,7 @@ function LanguageSwitcher({ align = "right" }: { align?: "left" | "right" }) {
         <Icon name="globe" size={18} /><span>{current.nativeLabel}</span><Icon name="chevron" size={14} />
       </button>
       {open && (
-        <ul className={`lang-menu lang-menu-${align}`} role="listbox" aria-label={t("chooseLanguage")}>
+        <ul className={`lang-menu lang-menu-${placement}`} role="listbox" aria-label={t("chooseLanguage")}>
           {localeOptions.map((option) => (
             <li key={option.code} role="option" aria-selected={option.code === locale}>
               <button type="button" className={option.code === locale ? "lang-option selected" : "lang-option"} onClick={() => choose(option.code)} lang={option.code}>
@@ -256,7 +256,7 @@ function SiteHeader() {
 
         <div className="header-nav-bar" ref={navRef}>
           <div className="page-width header-nav-row">
-            <LanguageSwitcher align="left" />
+            <LanguageSwitcher />
             <nav className="header-nav" aria-label="Main navigation">
               {navLinks.map((link) => <Link key={link.href} href={link.href} className={link.active ? "nav-link active" : "nav-link"}>{link.label}</Link>)}
               <button type="button" className={categoriesOpen ? "nav-link nav-button open" : "nav-link nav-button"} onClick={() => setCategoriesOpen((open) => !open)} aria-expanded={categoriesOpen} aria-haspopup="true">{t("categoriesNav")} <Icon name="chevron" size={14} /></button>
@@ -298,7 +298,7 @@ function SiteHeader() {
             <Link href="/shop?deals=1" className="drawer-link plain">{t("deals")}<Icon name="chevronRight" size={16} /></Link>
             <Link href="/orders" className="drawer-link plain">{t("trackOrder")}<Icon name="chevronRight" size={16} /></Link>
             <Link href="/help" className="drawer-link plain">{t("helpContact")}<Icon name="chevronRight" size={16} /></Link>
-            <div className="drawer-lang"><LanguageSwitcher align="left" /></div>
+            <div className="drawer-lang"><LanguageSwitcher placement="up" /></div>
           </div>
         </div>
       )}
@@ -310,10 +310,10 @@ function SiteHeader() {
             <div className="sheet-handle" />
             <button className="close-button" onClick={() => setLocationOpen(false)} aria-label="Close"><Icon name="close" size={18} /></button>
             <span className="section-kicker">{t("deliveringTo")}</span>
-            <h2>Where should we deliver?</h2>
-            <p className="muted-copy">We&apos;ll tune your catalogue, availability and delivery promise to the store closest to you.</p>
+            <h2>{t("locationPickerTitle")}</h2>
+            <p className="muted-copy">{t("locationPickerIntro")}</p>
             <label className="field-label" htmlFor="location">{t("deliveringTo")}</label>
-            <div className="input-with-icon"><Icon name="pin" size={18} /><input id="location" autoFocus value={locationInput} onChange={(event) => setLocationInput(event.target.value)} placeholder="Search an address or neighbourhood" /></div>
+            <div className="input-with-icon"><Icon name="pin" size={18} /><input id="location" autoFocus value={locationInput} onChange={(event) => setLocationInput(event.target.value)} placeholder={t("locationInputPlaceholder")} /></div>
             <div className="location-suggestions">
               {["Ikeja, Lagos", "Yaba, Lagos", "Victoria Island, Lagos"].map((suggestion) => (
                 <button key={suggestion} onClick={() => setLocationInput(suggestion)}><Icon name="pin" size={16} />{suggestion}<Icon name="chevronRight" size={16} /></button>
@@ -407,9 +407,9 @@ function HomeHero() {
   const { t } = useLocaleCopy();
   const [activeSlide, setActiveSlide] = useState(0);
   const slides = [
-    { image: "/images/hero/tech.jpg", position: "center", eyebrow: "TOOLS FOR YOUR NEXT MOVE", line1: "Better gear,", line2: "right nearby.", copy: "Shop phones, laptops, audio and useful equipment from trusted local stores." },
-    { image: "/images/hero/grocery.jpg", position: "center", eyebrow: "GOOD THINGS, NEARBY", line1: "Fresh picks,", line2: "ready for home.", copy: "Fill your kitchen with fresh food and everyday essentials, delivered when you need them." },
-    { image: "/images/hero/store.jpg", position: "center", eyebrow: "A WORLD OF LOCAL FINDS", line1: "More choice,", line2: "closer to home.", copy: "Explore useful things for work, home and everyday life from stores around you." },
+    { image: "/images/hero/tech.jpg", position: "center", eyebrow: t("hero1Eyebrow"), line1: t("hero1Line1"), line2: t("hero1Line2"), copy: t("hero1Copy") },
+    { image: "/images/hero/grocery.jpg", position: "center", eyebrow: t("hero2Eyebrow"), line1: t("hero2Line1"), line2: t("hero2Line2"), copy: t("hero2Copy") },
+    { image: "/images/hero/store.jpg", position: "center", eyebrow: t("hero3Eyebrow"), line1: t("hero3Line1"), line2: t("hero3Line2"), copy: t("hero3Copy") },
   ];
   useEffect(() => {
     const timer = window.setInterval(() => setActiveSlide((slide) => (slide + 1) % slides.length), 6000);
@@ -430,16 +430,11 @@ function HomeHero() {
       </div>
       <div className="commerce-hero-copy">
         <Link href="/shop" className="primary-button hero-cta">{t("shopEverything")} <Icon name="arrow" size={18} /></Link>
-        <div className="hero-proof">
-          <span className="proof-item"><Icon name="leaf" size={26} /><span>{t("trustCurated")}</span></span>
-          <span className="proof-item"><Icon name="pin" size={26} /><span>{t("trustLocal")}</span></span>
-          <span className="proof-item"><Icon name="star" size={26} /><span>{t("trustLoved")}</span></span>
-        </div>
       </div>
       <div className="hero-controls" aria-label="Hero slides">
         {slides.map((item, index) => <button key={item.image} type="button" className={index === activeSlide ? "hero-dot active" : "hero-dot"} onClick={() => setActiveSlide(index)} aria-label={`Show slide ${index + 1}`} aria-current={index === activeSlide} />)}
       </div>
-      <p className="hero-script" aria-hidden="true">Small choices,<br />big impact <Icon name="heart" size={22} /></p>
+      <p className="hero-script" aria-hidden="true">{t("heroScriptLine1")}<br />{t("heroScriptLine2")} <Icon name="heart" size={22} /></p>
     </div>
   </section>;
 }
@@ -646,7 +641,7 @@ export function ShopPage({ category, initialQuery = "", initialSort = "", dealsO
     <PageHeading title={title} copy={categoryInfo ? t("availableFromStore") : t("catalogueDescription")} crumbs={[{ label: t("home"), href: "/" }, { label: t("shop"), href: category ? "/shop" : undefined }, ...(categoryInfo ? [{ label: categoryName(categoryInfo.slug, categoryInfo.name) }] : [])]} />
     <div className="shop-toolbar">
       <form className="catalogue-search" onSubmit={submitCatalogueSearch}><Icon name="search" size={18} /><input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder={categoryInfo ? `${t("search")} ${categoryName(categoryInfo.slug, categoryInfo.name).toLowerCase()}` : t("searchProducts")} aria-label={t("search")} />{searchInput && <button type="button" className="clear-search" onClick={() => { setSearchInput(""); router.push(basePath); }} aria-label={t("clearSearch")}><Icon name="close" size={16} /></button>}</form>
-      <div className="shop-toolbar-right"><span className="result-count">{filtered.length} {t("products")}</span><label className="sort-select">{t("sortBy")} <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="Featured">{t("featured")}</option><option value="Best rated">{t("bestRated")}</option><option value="Price: low to high">{t("lowToHigh")}</option><option value="Price: high to low">{t("highToLow")}</option></select></label></div>
+      <div className="shop-toolbar-right"><span className="result-count">{filtered.length} {t("products")}</span><label className="sort-select"><span>{t("sortBy")}</span><select value={sort} onChange={(event) => setSort(event.target.value)}><option value="Featured">{t("featured")}</option><option value="Best rated">{t("bestRated")}</option><option value="Price: low to high">{t("lowToHigh")}</option><option value="Price: high to low">{t("highToLow")}</option></select></label></div>
     </div>
     <div className="filter-chips" aria-label={t("filters")}>
       <button className={saleOnly || dealsOnly ? "tab-chip active" : "tab-chip"} onClick={() => setSaleOnly((value) => !value)} aria-pressed={saleOnly || dealsOnly}><Icon name="tag" size={14} /> {t("onSaleOnly")}</button>
@@ -772,6 +767,7 @@ export function CartPage() {
 }
 
 export function CheckoutPage() {
+  const { t } = useLocaleCopy();
   const dispatch = useDispatch();
   const subtotal = useSelector((state: RootState) => selectCartTotal(state));
   const lines = useSelector((state: RootState) => selectCartLines(state));
@@ -779,24 +775,24 @@ export function CheckoutPage() {
   const [placed, setPlaced] = useState(false);
   const [slot, setSlot] = useState(1);
   const [quoteError, setQuoteError] = useState("");
-  if (placed) return <main className="page-width success-page"><div className="success-orbit"><Icon name="check" size={38} /></div><span className="section-kicker">Order confirmed</span><h1>Thank you, your order is on its way.</h1><p>Your KlemStore order is confirmed and your nearby store is already getting things together.</p><div className="order-number">ORDER KS–{Math.floor(Date.now() / 1000).toString().slice(-6)}</div><Link href="/orders" className="primary-button">Track your order <Icon name="arrow" size={18} /></Link></main>;
+  if (placed) return <main className="page-width success-page"><div className="success-orbit"><Icon name="check" size={38} /></div><span className="section-kicker">{t("orderConfirmed")}</span><h1>Thank you, your order is on its way.</h1><p>Your KlemStore order is confirmed and your nearby store is already getting things together.</p><div className="order-number">ORDER KS–{Math.floor(Date.now() / 1000).toString().slice(-6)}</div><Link href="/orders" className="primary-button">Track your order <Icon name="arrow" size={18} /></Link></main>;
   const delivery = deliverySlots[slot].price;
   const placeOrder = async () => { setQuoteError(""); if (remoteCartId) { try { await createCheckoutQuote(remoteCartId); } catch { setQuoteError("The live checkout quote is unavailable, so your order was not submitted."); return; } } setPlaced(true); dispatch(cartCleared()); dispatch(remoteCartCleared()); };
   return <main className="page-width checkout-page">
-    <PageHeading title="Checkout" crumbs={[{ label: "Home", href: "/" }, { label: "Bag", href: "/cart" }, { label: "Checkout" }]} />
+    <PageHeading title={t("checkoutTitle")} crumbs={[{ label: t("home"), href: "/" }, { label: t("checkoutCrumbBag"), href: "/cart" }, { label: t("checkoutTitle") }]} />
     <div className="checkout-layout">
       <div className="checkout-form">
-        <section className="checkout-section"><div className="checkout-section-heading"><span>1</span><div><h2>Delivery address</h2><p>We&apos;ll deliver to the location you picked.</p></div></div><div className="selected-address"><span className="address-icon"><Icon name="pin" size={20} /></span><div><strong>Ikeja, Lagos</strong><span>12 Adeola Street · Home</span></div><button onClick={() => undefined}>Change</button></div></section>
-        <section className="checkout-section"><div className="checkout-section-heading"><span>2</span><div><h2>Delivery time</h2><p>Your nearby store has these windows open.</p></div></div><div className="delivery-options">{deliverySlots.map((item, index) => <button key={item.time} className={slot === index ? "delivery-option selected" : "delivery-option"} onClick={() => setSlot(index)}><span className="radio-mark" /><div><strong>{item.time}</strong><small>{item.note}</small></div><b>{item.price === 0 ? "Free" : formatNaira(item.price)}</b></button>)}</div></section>
-        <section className="checkout-section"><div className="checkout-section-heading"><span>3</span><div><h2>Payment</h2><p>Payment is handled securely by Paystack.</p></div></div><div className="payment-option selected"><span className="address-icon"><Icon name="lock" size={20} /></span><div><strong>Card or bank transfer</strong><span>Secure payment via Paystack</span></div><span className="payment-check"><Icon name="check" size={16} /></span></div></section>
+        <section className="checkout-section"><div className="checkout-section-heading"><span>1</span><div><h2>{t("checkoutDeliveryAddress")}</h2><p>{t("checkoutDeliveryAddressNote")}</p></div></div><div className="selected-address"><span className="address-icon"><Icon name="pin" size={20} /></span><div><strong>Ikeja, Lagos</strong><span>12 Adeola Street · Home</span></div><button onClick={() => undefined}>Change</button></div></section>
+        <section className="checkout-section"><div className="checkout-section-heading"><span>2</span><div><h2>{t("checkoutDeliveryTime")}</h2><p>{t("checkoutDeliveryTimeNote")}</p></div></div><div className="delivery-options">{deliverySlots.map((item, index) => <button key={item.time} className={slot === index ? "delivery-option selected" : "delivery-option"} onClick={() => setSlot(index)}><span className="radio-mark" /><div><strong>{item.time}</strong><small>{item.note}</small></div><b>{item.price === 0 ? "Free" : formatNaira(item.price)}</b></button>)}</div></section>
+        <section className="checkout-section"><div className="checkout-section-heading"><span>3</span><div><h2>{t("checkoutPayment")}</h2><p>{t("checkoutPaymentNote")}</p></div></div><div className="payment-option selected"><span className="address-icon"><Icon name="lock" size={20} /></span><div><strong>Card or bank transfer</strong><span>Secure payment via Paystack</span></div><span className="payment-check"><Icon name="check" size={16} /></span></div></section>
       </div>
       <aside className="summary-card checkout-summary">
-        <h2>Order summary</h2>
+        <h2>{t("orderSummary")}</h2>
         <div className="checkout-items"><span>{lines.length || 3} items</span><span>{formatNaira(subtotal || 16800)}</span></div>
-        <div className="summary-row"><span>Delivery</span><strong>{formatNaira(delivery)}</strong></div>
-        <div className="summary-total"><span>Total</span><strong>{formatNaira((subtotal || 16800) + delivery)}</strong></div>
+        <div className="summary-row"><span>{t("summaryDelivery")}</span><strong>{formatNaira(delivery)}</strong></div>
+        <div className="summary-total"><span>{t("summaryTotal")}</span><strong>{formatNaira((subtotal || 16800) + delivery)}</strong></div>
         {quoteError && <p className="form-error">{quoteError}</p>}
-        <button className="primary-button full-button" onClick={placeOrder}>Place order <Icon name="arrow" size={18} /></button>
+        <button className="primary-button full-button" onClick={placeOrder}>{t("checkoutPlaceOrder")} <Icon name="arrow" size={18} /></button>
         <span className="secure-note"><Icon name="lock" size={14} /> Your payment details are protected.</span>
       </aside>
     </div>
@@ -804,6 +800,7 @@ export function CheckoutPage() {
 }
 
 export function AccountPage() {
+  const { t } = useLocaleCopy();
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
@@ -842,73 +839,77 @@ export function AccountPage() {
   }
 
   if (checking) return <main className="page-width account-page">
-    <div className="empty-page"><span className="empty-emoji"><Icon name="user" size={30} /></span><h2>One moment…</h2><p>Checking your customer session.</p></div>
+    <div className="empty-page"><span className="empty-emoji"><Icon name="user" size={30} /></span><h2>{t("accountMoment")}</h2><p>{t("accountMomentCopy")}</p></div>
   </main>;
 
   if (!profile) return <main className="page-width account-page">
-    <PageHeading title="My account" copy="Sign in to follow orders and keep your saved items." crumbs={[{ label: "Home", href: "/" }, { label: "Account" }]} />
+    <PageHeading title={t("accountTitle")} copy={t("accountTitleCopy")} crumbs={[{ label: t("home"), href: "/" }, { label: t("account") }]} />
     <div className="account-auth-shell">
-      <div className="account-auth-copy"><span className="section-kicker">Your KlemStore account</span><h1>Good things,<br /><em>kept close.</em></h1><p>Save your places, follow every order and move from one store to another without losing your rhythm.</p><div className="account-auth-points"><span>✓ Secure customer sessions</span><span>✓ Live order history</span><span>✓ One account across stores</span></div></div>
+      <div className="account-auth-copy"><span className="section-kicker">{t("accountKicker")}</span><h1>{t("accountHeadline1")}<br /><em>{t("accountHeadline2")}</em></h1><p>{t("accountIntro")}</p><div className="account-auth-points"><span>✓ Secure customer sessions</span><span>✓ Live order history</span><span>✓ One account across stores</span></div></div>
       <form className="account-auth-card" onSubmit={submitAuth}>
         <div className="auth-tabs">
-          <button type="button" className={mode === "login" ? "selected" : ""} onClick={() => { setMode("login"); setError(""); }}>Sign in</button>
-          <button type="button" className={mode === "register" ? "selected" : ""} onClick={() => { setMode("register"); setError(""); }}>Create account</button>
+          <button type="button" className={mode === "login" ? "selected" : ""} onClick={() => { setMode("login"); setError(""); }}>{t("accountSignIn")}</button>
+          <button type="button" className={mode === "register" ? "selected" : ""} onClick={() => { setMode("register"); setError(""); }}>{t("accountCreateAccount")}</button>
         </div>
         <h2>{mode === "login" ? "Welcome back." : "Make it yours."}</h2>
         <p className="auth-card-copy">{mode === "login" ? "Use your customer account to continue." : "Create a secure account for orders and saved places."}</p>
         {mode === "register" && <>
-          <label className="auth-field"><span>Your name</span><input required value={displayName} onChange={(event) => setDisplayName(event.target.value)} placeholder="Amaka Okafor" /></label>
-          <label className="auth-field"><span>Phone <small>optional</small></span><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="080 0000 0000" /></label>
+          <label className="auth-field"><span>{t("accountYourName")}</span><input required value={displayName} onChange={(event) => setDisplayName(event.target.value)} placeholder="Amaka Okafor" /></label>
+          <label className="auth-field"><span>{t("accountPhoneOptional")} <small>optional</small></span><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="080 0000 0000" /></label>
         </>}
-        <label className="auth-field"><span>Email address</span><input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" /></label>
-        <label className="auth-field"><span>Password</span><input required minLength={8} type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="At least 8 characters" autoComplete={mode === "login" ? "current-password" : "new-password"} /></label>
+        <label className="auth-field"><span>{t("accountEmailAddress")}</span><input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" /></label>
+        <label className="auth-field"><span>{t("accountPassword")}</span><input required minLength={8} type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t("accountPasswordHint")} autoComplete={mode === "login" ? "current-password" : "new-password"} /></label>
         {error && <p className="auth-error">{error}</p>}
         <button className="primary-button full-button" disabled={busy}>{busy ? "Working…" : mode === "login" ? "Sign in" : "Create account"}<Icon name="arrow" size={18} /></button>
-        <p className="auth-footnote">By continuing, you agree to KlemStore&apos;s customer terms.</p>
+        <p className="auth-footnote">{t("accountAuthFootnote")}</p>
       </form>
     </div>
   </main>;
 
   const tiles = [
-    { href: "/orders", icon: "box", title: "Your orders", copy: "Track a delivery or buy something again." },
-    { href: "/favorites", icon: "heart", title: "Saved items", copy: "Products you want to come back to." },
-    { href: "/help", icon: "pin", title: "Addresses", copy: "Home, work and other places you ship to." },
-    { href: "/plans", icon: "refresh", title: "Repeat plans", copy: "Schedule the things you always reorder." },
+    { href: "/orders", icon: "box", title: t("accountTileOrdersTitle"), copy: t("accountTileOrdersCopy") },
+    { href: "/favorites", icon: "heart", title: t("accountTileSavedTitle"), copy: t("accountTileSavedCopy") },
+    { href: "/help", icon: "pin", title: t("accountTileAddressesTitle"), copy: t("accountTileAddressesCopy") },
+    { href: "/plans", icon: "refresh", title: t("accountTilePlansTitle"), copy: t("accountTilePlansCopy") },
   ] as const;
   const initials = (profile.displayName || profile.email || "K").slice(0, 1).toUpperCase();
   return <main className="page-width account-page">
-    <div className="account-welcome"><div className="account-avatar">{initials}</div><div><span className="section-kicker">My account</span><h1>Hello, {profile.displayName || "there"}</h1><p>{profile.email} · {profile.emailVerified ? "Email verified" : "Email verification pending"}</p></div></div>
-    <div className="account-session-bar"><span><i /> Signed in securely</span><button className="underlined-button" onClick={signOut} disabled={busy}>{busy ? "Signing out…" : "Sign out"}</button></div>
+    <div className="account-welcome"><div className="account-avatar">{initials}</div><div><span className="section-kicker">{t("accountSessionTitle")}</span><h1>{t("accountGreeting")} {profile.displayName || "there"}</h1><p>{profile.email} · {profile.emailVerified ? "Email verified" : "Email verification pending"}</p></div></div>
+    <div className="account-session-bar"><span><i /> {t("accountSignedIn")}</span><button className="underlined-button" onClick={signOut} disabled={busy}>{busy ? "…" : t("accountSignOut")}</button></div>
     <div className="account-grid">{tiles.map((tile) => <Link key={tile.title} href={tile.href} className="account-tile"><span className="tile-icon"><Icon name={tile.icon} size={22} /></span><strong>{tile.title}</strong><p>{tile.copy}</p><span className="tile-arrow"><Icon name="arrow" size={18} /></span></Link>)}</div>
   </main>;
 }
 
 export function OrdersPage() {
+  const { t } = useLocaleCopy();
   return <main className="page-width orders-page">
-    <PageHeading title="Orders" copy="03 orders in total" crumbs={[{ label: "Account", href: "/account" }, { label: "Orders" }]} />
+    <PageHeading title={t("ordersTitle")} copy={t("ordersTitleCopy")} crumbs={[{ label: t("account"), href: "/account" }, { label: t("ordersTitle") }]} />
     <div className="orders-list">
-      <div className="order-card current-order"><div className="order-status"><span className="live-dot" /> Out for delivery</div><div className="order-card-main"><div><span className="order-date">Today · 09:42</span><h2>Order KS–824301</h2><p>Nigerian citrus box, Agege bread loaf<br />+ 3 more items</p></div><div className="order-illustration"><Icon name="truck" size={30} /></div></div><div className="order-progress"><span className="progress-done" /><span className="progress-done" /><span className="progress-active" /><span /></div><div className="progress-labels"><span>Confirmed</span><span>Picked</span><span>On the way</span><span>Delivered</span></div><Link href="/help" className="text-link">See delivery details <Icon name="arrow" size={15} /></Link></div>
-      <div className="order-card"><div className="order-status muted-status">Delivered · 28 Aug</div><div className="order-card-main"><div><span className="order-date">28 Aug 2026</span><h2>Order KS–810662</h2><p>Nigerian morning roast, Ogbomoso honey<br />+ 4 more items</p></div><strong className="order-total">₦18,400</strong></div><div className="order-card-actions"><button className="outline-button">View order</button><button className="primary-small-button">Buy it again</button></div></div>
+      <div className="order-card current-order"><div className="order-status"><span className="live-dot" /> {t("ordersOutForDelivery")}</div><div className="order-card-main"><div><span className="order-date">Today · 09:42</span><h2>Order KS–824301</h2><p>Nigerian citrus box, Agege bread loaf<br />+ 3 more items</p></div><div className="order-illustration"><Icon name="truck" size={30} /></div></div><div className="order-progress"><span className="progress-done" /><span className="progress-done" /><span className="progress-active" /><span /></div><div className="progress-labels"><span>Confirmed</span><span>Picked</span><span>On the way</span><span>Delivered</span></div><Link href="/help" className="text-link">See delivery details <Icon name="arrow" size={15} /></Link></div>
+      <div className="order-card"><div className="order-status muted-status">{t("ordersDelivered")} · 28 Aug</div><div className="order-card-main"><div><span className="order-date">28 Aug 2026</span><h2>Order KS–810662</h2><p>Nigerian morning roast, Ogbomoso honey<br />+ 4 more items</p></div><strong className="order-total">₦18,400</strong></div><div className="order-card-actions"><button className="outline-button">{t("ordersViewOrder")}</button><button className="primary-small-button">{t("ordersBuyAgain")}</button></div></div>
     </div>
   </main>;
 }
 
 export function FavoritesPage() {
+  const { t } = useLocaleCopy();
   const saved = useSelector((state: RootState) => state.saved.slugs);
   const activeProducts = useActiveProducts();
   const savedProducts = activeProducts.filter((product) => saved.includes(product.slug));
-  return <main className="page-width favorites-page"><PageHeading title="Saved items" copy="Your personal wishlist." crumbs={[{ label: "Home", href: "/" }, { label: "Saved" }]} />{savedProducts.length ? <ProductGrid items={savedProducts} /> : <div className="empty-page saved-empty"><span className="empty-emoji"><Icon name="heart" size={32} /></span><h2>Nothing saved yet</h2><p>Tap the heart on any product to keep it here for later.</p><Link href="/shop" className="primary-button">Browse products <Icon name="arrow" size={18} /></Link></div>}</main>;
+  return <main className="page-width favorites-page"><PageHeading title={t("favoritesTitle")} copy={t("favoritesTitleCopy")} crumbs={[{ label: t("home"), href: "/" }, { label: t("saved") }]} />{savedProducts.length ? <ProductGrid items={savedProducts} /> : <div className="empty-page saved-empty"><span className="empty-emoji"><Icon name="heart" size={32} /></span><h2>{t("favoritesEmptyTitle")}</h2><p>{t("favoritesEmptyCopy")}</p><Link href="/shop" className="primary-button">{t("favoritesBrowse")} <Icon name="arrow" size={18} /></Link></div>}</main>;
 }
 
 export function PlansPage() {
+  const { t } = useLocaleCopy();
   return <main className="page-width plans-page">
-    <section className="plans-hero"><div><span className="hero-eyebrow">Repeat plans</span><h1>Never run out of<br />the things you love.</h1><p>Build a schedule around the products you reorder most. We&apos;ll remind you before you run low.</p><button className="light-button">Create a plan <Icon name="arrow" size={18} /></button></div><div className="plans-stack"><div>🥫<span>Monthly staples</span></div><div>☕<span>Morning ritual</span></div><div>🫙<span>Cooking basics</span></div></div></section>
-    <section className="plans-list"><SectionTitle title="Popular plans" /><div className="plan-row"><div className="plan-row-art">🍝</div><div><span className="section-kicker">Weeknight</span><h3>15-minute dinners</h3><p>8 pantry staples · every 2 weeks</p></div><button className="outline-button">Add plan</button></div><div className="plan-row"><div className="plan-row-art">🥣</div><div><span className="section-kicker">Mornings</span><h3>Breakfast, sorted</h3><p>6 breakfast favourites · every month</p></div><button className="outline-button">Add plan</button></div></section>
+    <section className="plans-hero"><div><span className="hero-eyebrow">{t("plansKicker")}</span><h1>{t("plansHeadline1")}<br />{t("plansHeadline2")}</h1><p>{t("plansIntro")}</p><button className="light-button">Create a plan <Icon name="arrow" size={18} /></button></div><div className="plans-stack"><div>🥫<span>Monthly staples</span></div><div>☕<span>Morning ritual</span></div><div>🫙<span>Cooking basics</span></div></div></section>
+    <section className="plans-list"><SectionTitle title={t("plansPopularTitle")} /><div className="plan-row"><div className="plan-row-art">🍝</div><div><span className="section-kicker">{t("plansWeeknight")}</span><h3>{t("plansWeeknightTitle")}</h3><p>{t("plansWeeknightCopy")}</p></div><button className="outline-button">Add plan</button></div><div className="plan-row"><div className="plan-row-art">🥣</div><div><span className="section-kicker">{t("plansMornings")}</span><h3>{t("plansMorningsTitle")}</h3><p>{t("plansMorningsCopy")}</p></div><button className="outline-button">Add plan</button></div></section>
   </main>;
 }
 
 export function HelpPage() {
-  const faqs = ["How does KlemStore pick my store?", "Can I change my delivery location?", "What happens if something is out of stock?", "How do I track my order?"];
+  const { t } = useLocaleCopy();
+  const faqs = [t("helpFaq1Q"), t("helpFaq2Q"), t("helpFaq3Q"), t("helpFaq4Q")];
   const [open, setOpen] = useState(0);
-  return <main className="page-width help-page"><div className="help-hero"><span className="hero-eyebrow">Help centre</span><h1>How can we help?</h1><p>Find a quick answer or talk to a person on our support team.</p><div className="search-field"><Icon name="search" size={18} /><input placeholder="Search help" aria-label="Search help" /></div></div><div className="help-layout"><div className="faq-list"><h2>Frequently asked questions</h2>{faqs.map((faq, index) => <div className={open === index ? "faq-item open" : "faq-item"} key={faq}><button onClick={() => setOpen(open === index ? -1 : index)} aria-expanded={open === index}><span>{faq}</span><Icon name={open === index ? "minus" : "plus"} size={18} /></button>{open === index && <p>{index === 0 ? "We use your delivery location, availability, store service areas and route time to quietly choose the best nearby store. You see the experience, not the internal hand-off." : index === 1 ? "Absolutely. Tap the delivery location at the top of any page and choose a new address. Your catalogue will update around it." : index === 2 ? "We will never let you check out with a surprise. If a nearby item changes, we suggest the closest alternative before payment." : "Open Orders from your account to see the latest status, delivery window and helpful details."}</p>}</div>)}</div><div className="contact-card"><span className="contact-spark"><Icon name="headset" size={24} /></span><h2>Still need help?</h2><p>Our team is around Monday–Saturday, 8am–8pm.</p><button className="light-button">Start a chat <Icon name="arrow" size={18} /></button></div></div></main>;
+  return <main className="page-width help-page"><div className="help-hero"><span className="hero-eyebrow">{t("helpKicker")}</span><h1>{t("helpTitle")}</h1><p>{t("helpIntro")}</p><div className="search-field"><Icon name="search" size={18} /><input placeholder={t("helpSearchPlaceholder")} aria-label={t("helpSearchPlaceholder")} /></div></div><div className="help-layout"><div className="faq-list"><h2>{t("helpFaqTitle")}</h2>{faqs.map((faq, index) => <div className={open === index ? "faq-item open" : "faq-item"} key={faq}><button onClick={() => setOpen(open === index ? -1 : index)} aria-expanded={open === index}><span>{faq}</span><Icon name={open === index ? "minus" : "plus"} size={18} /></button>{open === index && <p>{index === 0 ? "We use your delivery location, availability, store service areas and route time to quietly choose the best nearby store. You see the experience, not the internal hand-off." : index === 1 ? "Absolutely. Tap the delivery location at the top of any page and choose a new address. Your catalogue will update around it." : index === 2 ? "We will never let you check out with a surprise. If a nearby item changes, we suggest the closest alternative before payment." : "Open Orders from your account to see the latest status, delivery window and helpful details."}</p>}</div>)}</div><div className="contact-card"><span className="contact-spark"><Icon name="headset" size={24} /></span><h2>{t("helpStillTitle")}</h2><p>{t("helpStillCopy")}</p><button className="light-button">{t("helpStartChat")} <Icon name="arrow" size={18} /></button></div></div></main>;
 }

@@ -1,4 +1,4 @@
-import { uiEnglish, uiExtraEnglish, uiExtraTranslations, uiFlowEnglish, uiFlowTranslations, uiTranslations } from "./i18n.ui";
+import { pageCopyEnglish, pageCopyTranslations, uiEnglish, uiExtraEnglish, uiExtraTranslations, uiFlowEnglish, uiFlowTranslations, uiTranslations } from "./i18n.ui";
 
 export const localeOptions = [
   { code: "en", label: "English", nativeLabel: "English", short: "EN" },
@@ -116,6 +116,7 @@ const english = {
   ...uiEnglish,
   ...uiExtraEnglish,
   ...uiFlowEnglish,
+  ...pageCopyEnglish,
 } as const;
 
 export type TranslationKey = keyof typeof english;
@@ -159,6 +160,11 @@ const localeSupplements: Partial<Record<Locale, Partial<TranslationDictionary>>>
 };
 
 for (const locale of localeOptions) Object.assign(translations[locale.code], localeSupplements[locale.code]);
+
+// Page-level copy (hero, checkout, account, orders, favorites, plans, help).
+for (const locale of localeOptions) {
+  if (locale.code !== "en") Object.assign(translations[locale.code], pageCopyTranslations[locale.code]);
+}
 
 const localizedSectionDescriptions: Partial<Record<Locale, Partial<TranslationDictionary>>> = {
   fr: { essentialsDescription: "Les aliments, produits pour la maison et technologies fiables à portée de main.", electronicsDescription: "Une technologie utile, disponible localement et livrée depuis le magasin le plus proche." },

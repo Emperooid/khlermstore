@@ -63,9 +63,9 @@ export function MiniCart() {
                     <small>{line.unit}</small>
                     <div className="minicart-row">
                       <div className="quantity-picker small">
-                        <button onClick={() => dispatch(quantityChanged({ slug: line.slug, quantity: line.quantity - 1 }))} aria-label="Decrease quantity"><Icon name="minus" size={14} /></button>
+                        <button onClick={() => dispatch(quantityChanged({ slug: line.slug, quantity: line.quantity - 1 }))} aria-label={t("qtyDecrease")}><Icon name="minus" size={14} /></button>
                         <span>{line.quantity}</span>
-                        <button onClick={() => dispatch(quantityChanged({ slug: line.slug, quantity: line.quantity + 1 }))} aria-label="Increase quantity"><Icon name="plus" size={14} /></button>
+                        <button onClick={() => dispatch(quantityChanged({ slug: line.slug, quantity: line.quantity + 1 }))} aria-label={t("qtyIncrease")}><Icon name="plus" size={14} /></button>
                       </div>
                       <strong>{formatNaira(line.price * line.quantity)}</strong>
                     </div>
@@ -138,7 +138,7 @@ export function QuickView() {
           <div className="detail-price-row"><strong className="detail-price">{formatNaira(product.price)}</strong>{discount > 0 && <s>{formatNaira(product.compareAt!)}</s>}</div>
           <p className="detail-description">{product.description}</p>
           <div className="detail-actions compact">
-            <div className="quantity-picker"><button onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label="Decrease quantity"><Icon name="minus" size={16} /></button><span>{quantity}</span><button onClick={() => setQuantity(quantity + 1)} aria-label="Increase quantity"><Icon name="plus" size={16} /></button></div>
+            <div className="quantity-picker"><button onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label={t("qtyDecrease")}><Icon name="minus" size={16} /></button><span>{quantity}</span><button onClick={() => setQuantity(quantity + 1)} aria-label={t("qtyIncrease")}><Icon name="plus" size={16} /></button></div>
             <button className="primary-button add-detail" onClick={(event) => { addToBag(product, event.currentTarget, quantity); close(); }}><Icon name="bag" size={18} /> {t("addToBag")}</button>
           </div>
           <Link href={`/product/${product.slug}`} className="delivery-note" onClick={close}>{t("detailsTab")} <Icon name="arrow" size={15} /></Link>
