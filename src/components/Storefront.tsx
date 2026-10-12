@@ -453,6 +453,46 @@ function CategoryStrip() {
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, [update]);
+  // Advance the strip by one card every few seconds, wrapping back to the start.
+  // Pauses while the pointer is over it, while keyboard focus is inside, and when
+  // the tab is hidden or the section is scrolled out of view. Skipped entirely for
+  // users who prefer reduced motion.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const element = trackRef.current;
+    if (!element) return;
+    let paused = document.hidden;
+    let visible = true;
+    const step = () => Math.max(160, Math.round(element.clientWidth / 3));
+    const advance = () => {
+      if (paused || !visible) return;
+      const limit = element.scrollWidth - element.clientWidth;
+      if (limit <= 4) return;
+      const atEnd = element.scrollLeft >= limit - 8;
+      element.scrollTo({ left: atEnd ? 0 : Math.min(element.scrollLeft + step(), limit), behavior: "smooth" });
+    };
+    const onVisibility = () => { paused = document.hidden; };
+    const onEnter = () => { paused = true; };
+    const onLeave = () => { paused = document.hidden; };
+    element.addEventListener("mouseenter", onEnter);
+    element.addEventListener("mouseleave", onLeave);
+    element.addEventListener("focusin", onEnter);
+    element.addEventListener("focusout", onLeave);
+    document.addEventListener("visibilitychange", onVisibility);
+    const observer = typeof IntersectionObserver === "undefined" ? null
+      : new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { threshold: 0.25 });
+    observer?.observe(element);
+    const timer = window.setInterval(advance, 4500);
+    return () => {
+      window.clearInterval(timer);
+      observer?.disconnect();
+      element.removeEventListener("mouseenter", onEnter);
+      element.removeEventListener("mouseleave", onLeave);
+      element.removeEventListener("focusin", onEnter);
+      element.removeEventListener("focusout", onLeave);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
   const scroll = (direction: 1 | -1) => trackRef.current?.scrollBy({ left: direction * trackRef.current.clientWidth * 0.7, behavior: "smooth" });
   return <Reveal as="section" className="page-width category-wrap">
     <button className="strip-arrow prev" onClick={() => scroll(-1)} disabled={edge.start} aria-label="Previous"><Icon name="chevronLeft" size={18} /></button>
