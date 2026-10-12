@@ -744,6 +744,10 @@ main { animation: fade .45s ease both; }
 .strip-arrow:hover { background: var(--dark); color: #fff; }
 .strip-arrow.prev { left: -14px; }
 .strip-arrow.next { right: -14px; }
+/* Pause control for the auto-advancing strip (WCAG 2.2.2). */
+.strip-autoplay { position: absolute; top: 8px; right: 14px; z-index: 3; width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: #fff; color: var(--muted); box-shadow: var(--shadow-sm); transition: background .2s, color .2s, border-color .2s; }
+.strip-autoplay:hover { border-color: var(--blue); background: var(--blue); color: #fff; }
+.strip-autoplay[aria-pressed="true"] { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
 .strip-arrow:disabled { opacity: 0; pointer-events: none; }
 
 /* Tabs on homepage + shop filter chips */

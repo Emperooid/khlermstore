@@ -444,6 +444,8 @@ function CategoryStrip() {
   const categoryName = useCategoryName();
   const trackRef = useRef<HTMLDivElement>(null);
   const [edge, setEdge] = useState({ start: true, end: false });
+  // WCAG 2.2.2: content that moves automatically needs a way to stop it.
+  const [autoPlay, setAutoPlay] = useState(true);
   const update = useCallback(() => {
     const element = trackRef.current;
     if (element) setEdge({ start: element.scrollLeft < 8, end: element.scrollLeft + element.clientWidth >= element.scrollWidth - 8 });
@@ -456,9 +458,10 @@ function CategoryStrip() {
   // Advance the strip by one card every few seconds, wrapping back to the start.
   // Pauses while the pointer is over it, while keyboard focus is inside, and when
   // the tab is hidden or the section is scrolled out of view. Skipped entirely for
-  // users who prefer reduced motion.
+  // users who prefer reduced motion, and whenever the user has paused it.
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!autoPlay) return;
     const element = trackRef.current;
     if (!element) return;
     let paused = document.hidden;
@@ -492,9 +495,10 @@ function CategoryStrip() {
       element.removeEventListener("focusout", onLeave);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, []);
+  }, [autoPlay]);
   const scroll = (direction: 1 | -1) => trackRef.current?.scrollBy({ left: direction * trackRef.current.clientWidth * 0.7, behavior: "smooth" });
   return <Reveal as="section" className="page-width category-wrap">
+    <button type="button" className="strip-autoplay" onClick={() => setAutoPlay((value) => !value)} aria-pressed={!autoPlay} aria-label={autoPlay ? t("stripPause") : t("stripPlay")}><Icon name={autoPlay ? "minus" : "refresh"} size={16} /></button>
     <button className="strip-arrow prev" onClick={() => scroll(-1)} disabled={edge.start} aria-label="Previous"><Icon name="chevronLeft" size={18} /></button>
     <div className="category-strip" ref={trackRef} onScroll={update} aria-label={t("shopByDepartment")}>
       {categories.map((category) => <Link href={`/shop/${category.slug}`} key={category.slug} className="category-chip"><span className="category-bubble"><img src={category.image} alt="" loading="lazy" onError={(event) => { event.currentTarget.style.display = "none"; }} /></span><strong>{categoryName(category.slug, category.name)}</strong></Link>)}
