@@ -849,6 +849,7 @@ export function AccountPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
@@ -902,9 +903,9 @@ export function AccountPage() {
           <label className="auth-field"><span>{t("accountPhoneOptional")} <small>{t("authOptional")}</small></span><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="080 0000 0000" /></label>
         </>}
         <label className="auth-field"><span>{t("accountEmailAddress")}</span><input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" /></label>
-        <label className="auth-field"><span>{t("accountPassword")}</span><input required minLength={8} type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t("accountPasswordHint")} autoComplete={mode === "login" ? "current-password" : "new-password"} /></label>
+        <label className="auth-field"><span>{t("accountPassword")}</span><span className="auth-password"><input required minLength={8} type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t("accountPasswordHint")} autoComplete={mode === "login" ? "current-password" : "new-password"} /><button type="button" className="auth-eye" onClick={() => setShowPassword((value) => !value)} aria-pressed={showPassword} aria-label={showPassword ? t("passwordHide") : t("passwordShow")} title={showPassword ? t("passwordHide") : t("passwordShow")}><Icon name={showPassword ? "eyeOff" : "eye"} size={18} /></button></span></label>
         {error && <p className="auth-error">{error}</p>}
-        <button className="primary-button full-button" disabled={busy}>{busy ? t("authWorking") : mode === "login" ? t("authSignInAction") : t("authCreateAction")}<Icon name="arrow" size={18} /></button>
+        <button className="primary-button full-button auth-submit" disabled={busy}>{busy ? t("authWorking") : mode === "login" ? t("authSignInAction") : t("authCreateAction")}<Icon name="arrow" size={18} /></button>
         <p className="auth-footnote">{t("accountAuthFootnote")}</p>
       </form>
     </div>
