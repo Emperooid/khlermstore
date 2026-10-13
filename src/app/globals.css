@@ -502,7 +502,9 @@ img { max-width: 100%; }
 /* Plans, help */
 .plans-hero, .help-hero { display: grid; gap: 24px; margin: 32px 0 36px; padding: 44px; border-radius: var(--radius-lg); background: var(--blue-soft); }
 .plans-hero { grid-template-columns: 1.2fr .8fr; align-items: center; }
-.plans-hero .hero-eyebrow, .help-hero .hero-eyebrow { color: var(--blue); }
+/* 13px text on the --blue-soft tint: the brand blue only reaches 4.26:1 there,
+   so use a darker shade of the same hue (5.92:1) for these two labels only. */
+.plans-hero .hero-eyebrow, .help-hero .hero-eyebrow { color: #2F55B8; }
 .plans-hero h1, .help-hero h1 { margin: 6px 0 14px; font-size: clamp(30px, 3.6vw, 44px); font-weight: 600; }
 .plans-hero p, .help-hero p { max-width: 500px; margin: 0 0 24px; color: #3f4962; line-height: 1.65; }
 .plans-hero .light-button { background: var(--blue); color: #fff; }
