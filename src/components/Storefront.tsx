@@ -819,7 +819,7 @@ export function CheckoutPage() {
   const [placed, setPlaced] = useState(false);
   const [slot, setSlot] = useState(1);
   const [quoteError, setQuoteError] = useState("");
-  if (placed) return <main className="page-width success-page"><div className="success-orbit"><Icon name="check" size={38} /></div><span className="section-kicker">{t("orderConfirmed")}</span><h1>Thank you, your order is on its way.</h1><p>Your KlemStore order is confirmed and your nearby store is already getting things together.</p><div className="order-number">ORDER KS–{Math.floor(Date.now() / 1000).toString().slice(-6)}</div><Link href="/orders" className="primary-button">Track your order <Icon name="arrow" size={18} /></Link></main>;
+  if (placed) return <main className="page-width success-page"><div className="success-orbit"><Icon name="check" size={38} /></div><span className="section-kicker">{t("orderConfirmed")}</span><h1>Thank you, your order is on its way.</h1><p>Your KlemStore order is confirmed and your nearby store is already getting things together.</p><div className="order-number">ORDER KS–{Math.floor(Date.now() / 1000).toString().slice(-6)}</div><Link href="/orders" className="primary-button">{t("authTrackOrder")} <Icon name="arrow" size={18} /></Link></main>;
   const delivery = deliverySlots[slot].price;
   const placeOrder = async () => { setQuoteError(""); if (remoteCartId) { try { await createCheckoutQuote(remoteCartId); } catch { setQuoteError("The live checkout quote is unavailable, so your order was not submitted."); return; } } setPlaced(true); dispatch(cartCleared()); dispatch(remoteCartCleared()); };
   return <main className="page-width checkout-page">
@@ -895,16 +895,16 @@ export function AccountPage() {
           <button type="button" className={mode === "login" ? "selected" : ""} onClick={() => { setMode("login"); setError(""); }}>{t("accountSignIn")}</button>
           <button type="button" className={mode === "register" ? "selected" : ""} onClick={() => { setMode("register"); setError(""); }}>{t("accountCreateAccount")}</button>
         </div>
-        <h2>{mode === "login" ? "Welcome back." : "Make it yours."}</h2>
-        <p className="auth-card-copy">{mode === "login" ? "Use your customer account to continue." : "Create a secure account for orders and saved places."}</p>
+        <h2>{mode === "login" ? t("authWelcomeBack") : t("authMakeItYours")}</h2>
+        <p className="auth-card-copy">{mode === "login" ? t("authSignInCopy") : t("authRegisterCopy")}</p>
         {mode === "register" && <>
           <label className="auth-field"><span>{t("accountYourName")}</span><input required value={displayName} onChange={(event) => setDisplayName(event.target.value)} placeholder="Amaka Okafor" /></label>
-          <label className="auth-field"><span>{t("accountPhoneOptional")} <small>optional</small></span><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="080 0000 0000" /></label>
+          <label className="auth-field"><span>{t("accountPhoneOptional")} <small>{t("authOptional")}</small></span><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="080 0000 0000" /></label>
         </>}
         <label className="auth-field"><span>{t("accountEmailAddress")}</span><input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" /></label>
         <label className="auth-field"><span>{t("accountPassword")}</span><input required minLength={8} type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t("accountPasswordHint")} autoComplete={mode === "login" ? "current-password" : "new-password"} /></label>
         {error && <p className="auth-error">{error}</p>}
-        <button className="primary-button full-button" disabled={busy}>{busy ? "Working…" : mode === "login" ? "Sign in" : "Create account"}<Icon name="arrow" size={18} /></button>
+        <button className="primary-button full-button" disabled={busy}>{busy ? t("authWorking") : mode === "login" ? t("authSignInAction") : t("authCreateAction")}<Icon name="arrow" size={18} /></button>
         <p className="auth-footnote">{t("accountAuthFootnote")}</p>
       </form>
     </div>
