@@ -446,13 +446,15 @@ export const pageCopyEnglish = {
   orderConfirmed: "Order confirmed", orderConfirmedCopy: "Thank you. We're getting your good things ready.",
   ordersTotal: "03 total",
   qtyDecrease: "Decrease quantity", qtyIncrease: "Increase quantity",
-  langChoose: "Choose language", stripPause: "Pause auto-scroll", stripPlay: "Resume auto-scroll", authWelcomeBack: 'Welcome back.', authMakeItYours: 'Make it yours.', authSignInCopy: 'Use your customer account to continue.', authRegisterCopy: 'Create a secure account for orders and saved places.', authOptional: 'optional', authWorking: 'Working…', authSignInAction: 'Sign in', authCreateAction: 'Create account', authTrackOrder: 'Track your order',
+  langChoose: "Choose language", stripPause: "Pause auto-scroll", stripPlay: "Resume auto-scroll", authWelcomeBack: 'Welcome back.', authMakeItYours: 'Make it yours.', authSignInCopy: 'Use your customer account to continue.', authRegisterCopy: 'Create a secure account for orders and saved places.', authOptional: 'optional', authWorking: 'Working…', authSignInAction: 'Sign in', authCreateAction: 'Create account', authTrackOrder: 'Track your order', passwordShow: 'Show password', passwordHide: 'Hide password',
 };
 export type PageCopyKey = keyof typeof pageCopyEnglish;
 
 // Translations for the page-level copy above.
 export const pageCopyTranslations: Record<Exclude<UiLocale, "en">, Record<PageCopyKey, string>> = {
   fr: {
+    passwordShow: 'Afficher le mot de passe',
+    passwordHide: 'Masquer le mot de passe',
     authWelcomeBack: 'Bon retour.',
     authMakeItYours: 'C\'est à vous.',
     authSignInCopy: 'Utilisez votre compte client pour continuer.',
@@ -507,6 +509,8 @@ export const pageCopyTranslations: Record<Exclude<UiLocale, "en">, Record<PageCo
     qtyIncrease: 'Augmenter la quantité', langChoose: 'Choisir la langue',
   },
   zh: {
+    passwordShow: '显示密码',
+    passwordHide: '隐藏密码',
     authWelcomeBack: '欢迎回来。',
     authMakeItYours: '让它成为你的。',
     authSignInCopy: '使用您的客户账户继续。',
@@ -561,6 +565,8 @@ export const pageCopyTranslations: Record<Exclude<UiLocale, "en">, Record<PageCo
     qtyIncrease: '增加数量', langChoose: '选择语言',
   },
   yo: {
+    passwordShow: 'Fi ọ̀rọ̀ ìpamọ́ han',
+    passwordHide: 'Fi ọ̀rọ̀ ìpamọ́ pamọ́',
     authWelcomeBack: 'Káàbọ̀.',
     authMakeItYours: 'Jẹ́ kí ó jẹ́ tìẹ.',
     authSignInCopy: 'Lo àkọsílẹ̀ oníbàárà rẹ láti tẹ̀síwájú.',
@@ -615,6 +621,8 @@ export const pageCopyTranslations: Record<Exclude<UiLocale, "en">, Record<PageCo
     qtyIncrease: 'Pọ̀ si iye', langChoose: 'Yan èdè',
   },
   ig: {
+    passwordShow: 'Gosi paswọọdụ',
+    passwordHide: 'Zoo paswọọdụ',
     authWelcomeBack: 'Nnọọ.',
     authMakeItYours: 'Mee ya nke gị.',
     authSignInCopy: 'Jiri akaụntụ onye ahịa gị gaa n\'ihu.',
@@ -669,6 +677,8 @@ export const pageCopyTranslations: Record<Exclude<UiLocale, "en">, Record<PageCo
     qtyIncrease: 'Bawanye ọnụọgụ', langChoose: 'Họrọ asụsụ',
   },
   ha: {
+    passwordShow: 'Nuna kalmar sirri',
+    passwordHide: 'Ɓoye kalmar sirri',
     authWelcomeBack: 'Barka da dawowa.',
     authMakeItYours: 'Ka ya zama naka.',
     authSignInCopy: 'Yi amfani da asusun abokin ciniki naka don ci gaba.',

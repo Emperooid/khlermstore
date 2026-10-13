@@ -34,6 +34,7 @@ const paths = {
   instagram: <><rect x="3.500" y="3.500" width="17" height="17" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17" cy="7" r=".6" fill="currentColor" /></>,
   youtube: <><rect x="2.500" y="5.500" width="19" height="13" rx="4" /><path d="m10 9.500 5 2.500-5 2.500v-5Z" fill="currentColor" /></>,
   eye: <><path d="M2.500 12S6 5.500 12 5.500 21.500 12 21.500 12 18 18.500 12 18.500 2.500 12 2.500 12Z" /><circle cx="12" cy="12" r="3" /></>,
+  eyeOff: <><path d="M2.500 12S6 5.500 12 5.500c1.600 0 3 .460 4.200 1.150M21.500 12s-3.500 6.500-9.500 6.500c-1.600 0-3-.460-4.200-1.150" /><path d="m9.900 9.900a3 3 0 0 0 4.200 4.200" /><path d="m4 4 16 16" /></>,
   sliders: <path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6" />,
 } as const;
 
