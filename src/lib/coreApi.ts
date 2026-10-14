@@ -1,10 +1,11 @@
 import type { Product } from "./data";
 
 const apiBaseUrl = (process.env.NEXT_PUBLIC_KLEMSTORE_API_BASE_URL || "").replace(/\/$/, "");
-const tenantId = process.env.NEXT_PUBLIC_KLEMSTORE_TENANT_ID || "";
+const tenantId = process.env.NEXT_PUBLIC_KLEMSTORE_CORE_TENANT_ID || "";
 const configuredAccessToken = process.env.NEXT_PUBLIC_KLEMSTORE_ACCESS_TOKEN || "";
 const accessTokenKey = "klemstore-customer-access-token";
 const refreshTokenKey = "klemstore-customer-refresh-token";
+const tenantIdIsUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(tenantId);
 
 export type CustomerProfile = {
   id: string;
@@ -90,7 +91,7 @@ export type CoreCheckoutQuote = {
 };
 
 export function isCoreApiConfigured() {
-  return Boolean(apiBaseUrl && tenantId);
+  return Boolean(apiBaseUrl && tenantIdIsUuid);
 }
 
 export function getGuestSession() {
@@ -122,7 +123,12 @@ async function refreshCustomerSession() {
 }
 
 async function request<T>(path: string, init: RequestInit = {}, idempotent = false, retryAuth = true): Promise<T> {
-  if (!isCoreApiConfigured()) throw new Error("Klemstore Core API is not configured");
+  if (!isCoreApiConfigured()) {
+    if (apiBaseUrl && tenantId) {
+      throw new Error("KlemStore Core API requires a UUID tenant ID. Set NEXT_PUBLIC_KLEMSTORE_CORE_TENANT_ID; do not use a SyntriCore CUID here.");
+    }
+    throw new Error("Klemstore Core API is not configured");
+  }
   const headers = new Headers(init.headers);
   headers.set("Content-Type", "application/json");
   headers.set("X-Tenant-ID", tenantId);
