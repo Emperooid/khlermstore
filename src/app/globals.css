@@ -459,6 +459,15 @@ img { max-width: 100%; }
 .auth-field small { color: var(--muted); font-weight: 600; }
 .auth-field input { min-height: 47px; padding: 0 13px; border: 1px solid var(--line); border-radius: 10px; outline: 0; background: #fbfcff; color: var(--ink); font-size: 13px; }
 .auth-field input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(65,105,225,.11); }
+/* Show/hide password */
+.auth-password { position: relative; display: block; }
+.auth-password input { width: 100%; padding-right: 46px; }
+.auth-eye { position: absolute; top: 50%; right: 6px; width: 34px; height: 34px; display: grid; place-items: center; transform: translateY(-50%); border: 0; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; transition: color .2s, background .2s; }
+.auth-eye:hover { color: var(--blue); background: var(--blue-soft); }
+.auth-eye:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+.auth-eye[aria-pressed="true"] { color: var(--blue); }
+/* Space above the submit action */
+.auth-submit { margin-top: 24px; }
 .auth-error { margin: 15px 0 0; color: #b33b4a; font-size: 11px; line-height: 1.4; }
 .auth-footnote { margin: 16px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; text-align: center; }
 .account-session-bar { display: flex; justify-content: space-between; align-items: center; margin: -30px 0 28px; padding: 13px 16px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--muted); font-size: 11px; }
@@ -493,7 +502,9 @@ img { max-width: 100%; }
 /* Plans, help */
 .plans-hero, .help-hero { display: grid; gap: 24px; margin: 32px 0 36px; padding: 44px; border-radius: var(--radius-lg); background: var(--blue-soft); }
 .plans-hero { grid-template-columns: 1.2fr .8fr; align-items: center; }
-.plans-hero .hero-eyebrow, .help-hero .hero-eyebrow { color: var(--blue); }
+/* 13px text on the --blue-soft tint: the brand blue only reaches 4.26:1 there,
+   so use a darker shade of the same hue (5.92:1) for these two labels only. */
+.plans-hero .hero-eyebrow, .help-hero .hero-eyebrow { color: #2F55B8; }
 .plans-hero h1, .help-hero h1 { margin: 6px 0 14px; font-size: clamp(30px, 3.6vw, 44px); font-weight: 600; }
 .plans-hero p, .help-hero p { max-width: 500px; margin: 0 0 24px; color: #3f4962; line-height: 1.65; }
 .plans-hero .light-button { background: var(--blue); color: #fff; }

@@ -819,16 +819,16 @@ export function CheckoutPage() {
   const [placed, setPlaced] = useState(false);
   const [slot, setSlot] = useState(1);
   const [quoteError, setQuoteError] = useState("");
-  if (placed) return <main className="page-width success-page"><div className="success-orbit"><Icon name="check" size={38} /></div><span className="section-kicker">{t("orderConfirmed")}</span><h1>Thank you, your order is on its way.</h1><p>Your KlemStore order is confirmed and your nearby store is already getting things together.</p><div className="order-number">ORDER KS–{Math.floor(Date.now() / 1000).toString().slice(-6)}</div><Link href="/orders" className="primary-button">Track your order <Icon name="arrow" size={18} /></Link></main>;
+  if (placed) return <main className="page-width success-page"><div className="success-orbit"><Icon name="check" size={38} /></div><span className="section-kicker">{t("orderConfirmed")}</span><h1>{t("orderThanks")}</h1><p>{t("orderThanksCopy")}</p><div className="order-number">{t("orderNumberLabel")} KS–{Math.floor(Date.now() / 1000).toString().slice(-6)}</div><Link href="/orders" className="primary-button">{t("authTrackOrder")} <Icon name="arrow" size={18} /></Link></main>;
   const delivery = deliverySlots[slot].price;
-  const placeOrder = async () => { setQuoteError(""); if (remoteCartId) { try { await createCheckoutQuote(remoteCartId); } catch { setQuoteError("The live checkout quote is unavailable, so your order was not submitted."); return; } } setPlaced(true); dispatch(cartCleared()); dispatch(remoteCartCleared()); };
+  const placeOrder = async () => { setQuoteError(""); if (remoteCartId) { try { await createCheckoutQuote(remoteCartId); } catch { setQuoteError(t("checkoutQuoteError")); return; } } setPlaced(true); dispatch(cartCleared()); dispatch(remoteCartCleared()); };
   return <main className="page-width checkout-page">
     <PageHeading title={t("checkoutTitle")} crumbs={[{ label: t("home"), href: "/" }, { label: t("checkoutCrumbBag"), href: "/cart" }, { label: t("checkoutTitle") }]} />
     <div className="checkout-layout">
       <div className="checkout-form">
-        <section className="checkout-section"><div className="checkout-section-heading"><span>1</span><div><h2>{t("checkoutDeliveryAddress")}</h2><p>{t("checkoutDeliveryAddressNote")}</p></div></div><div className="selected-address"><span className="address-icon"><Icon name="pin" size={20} /></span><div><strong>Ikeja, Lagos</strong><span>12 Adeola Street · Home</span></div><button onClick={() => undefined}>Change</button></div></section>
-        <section className="checkout-section"><div className="checkout-section-heading"><span>2</span><div><h2>{t("checkoutDeliveryTime")}</h2><p>{t("checkoutDeliveryTimeNote")}</p></div></div><div className="delivery-options">{deliverySlots.map((item, index) => <button key={item.time} className={slot === index ? "delivery-option selected" : "delivery-option"} onClick={() => setSlot(index)}><span className="radio-mark" /><div><strong>{item.time}</strong><small>{item.note}</small></div><b>{item.price === 0 ? "Free" : formatNaira(item.price)}</b></button>)}</div></section>
-        <section className="checkout-section"><div className="checkout-section-heading"><span>3</span><div><h2>{t("checkoutPayment")}</h2><p>{t("checkoutPaymentNote")}</p></div></div><div className="payment-option selected"><span className="address-icon"><Icon name="lock" size={20} /></span><div><strong>Card or bank transfer</strong><span>Secure payment via Paystack</span></div><span className="payment-check"><Icon name="check" size={16} /></span></div></section>
+        <section className="checkout-section"><div className="checkout-section-heading"><span>1</span><div><h2>{t("checkoutDeliveryAddress")}</h2><p>{t("checkoutDeliveryAddressNote")}</p></div></div><div className="selected-address"><span className="address-icon"><Icon name="pin" size={20} /></span><div><strong>Ikeja, Lagos</strong><span>12 Adeola Street · Home</span></div><button onClick={() => undefined}>{t("checkoutChange")}</button></div></section>
+        <section className="checkout-section"><div className="checkout-section-heading"><span>2</span><div><h2>{t("checkoutDeliveryTime")}</h2><p>{t("checkoutDeliveryTimeNote")}</p></div></div><div className="delivery-options">{deliverySlots.map((item, index) => <button key={item.time} className={slot === index ? "delivery-option selected" : "delivery-option"} onClick={() => setSlot(index)}><span className="radio-mark" /><div><strong>{item.time}</strong><small>{item.note}</small></div><b>{item.price === 0 ? t("checkoutFree") : formatNaira(item.price)}</b></button>)}</div></section>
+        <section className="checkout-section"><div className="checkout-section-heading"><span>3</span><div><h2>{t("checkoutPayment")}</h2><p>{t("checkoutPaymentNote")}</p></div></div><div className="payment-option selected"><span className="address-icon"><Icon name="lock" size={20} /></span><div><strong>{t("checkoutPayCard")}</strong><span>{t("checkoutPaySecure")}</span></div><span className="payment-check"><Icon name="check" size={16} /></span></div></section>
       </div>
       <aside className="summary-card checkout-summary">
         <h2>{t("orderSummary")}</h2>
@@ -849,6 +849,7 @@ export function AccountPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
@@ -895,16 +896,16 @@ export function AccountPage() {
           <button type="button" className={mode === "login" ? "selected" : ""} onClick={() => { setMode("login"); setError(""); }}>{t("accountSignIn")}</button>
           <button type="button" className={mode === "register" ? "selected" : ""} onClick={() => { setMode("register"); setError(""); }}>{t("accountCreateAccount")}</button>
         </div>
-        <h2>{mode === "login" ? "Welcome back." : "Make it yours."}</h2>
-        <p className="auth-card-copy">{mode === "login" ? "Use your customer account to continue." : "Create a secure account for orders and saved places."}</p>
+        <h2>{mode === "login" ? t("authWelcomeBack") : t("authMakeItYours")}</h2>
+        <p className="auth-card-copy">{mode === "login" ? t("authSignInCopy") : t("authRegisterCopy")}</p>
         {mode === "register" && <>
           <label className="auth-field"><span>{t("accountYourName")}</span><input required value={displayName} onChange={(event) => setDisplayName(event.target.value)} placeholder="Amaka Okafor" /></label>
-          <label className="auth-field"><span>{t("accountPhoneOptional")} <small>optional</small></span><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="080 0000 0000" /></label>
+          <label className="auth-field"><span>{t("accountPhoneOptional")} <small>{t("authOptional")}</small></span><input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="080 0000 0000" /></label>
         </>}
         <label className="auth-field"><span>{t("accountEmailAddress")}</span><input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" /></label>
-        <label className="auth-field"><span>{t("accountPassword")}</span><input required minLength={8} type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t("accountPasswordHint")} autoComplete={mode === "login" ? "current-password" : "new-password"} /></label>
+        <label className="auth-field"><span>{t("accountPassword")}</span><span className="auth-password"><input required minLength={8} type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t("accountPasswordHint")} autoComplete={mode === "login" ? "current-password" : "new-password"} /><button type="button" className="auth-eye" onClick={() => setShowPassword((value) => !value)} aria-pressed={showPassword} aria-label={showPassword ? t("passwordHide") : t("passwordShow")} title={showPassword ? t("passwordHide") : t("passwordShow")}><Icon name={showPassword ? "eyeOff" : "eye"} size={18} /></button></span></label>
         {error && <p className="auth-error">{error}</p>}
-        <button className="primary-button full-button" disabled={busy}>{busy ? "Working…" : mode === "login" ? "Sign in" : "Create account"}<Icon name="arrow" size={18} /></button>
+        <button className="primary-button full-button auth-submit" disabled={busy}>{busy ? t("authWorking") : mode === "login" ? t("authSignInAction") : t("authCreateAction")}<Icon name="arrow" size={18} /></button>
         <p className="auth-footnote">{t("accountAuthFootnote")}</p>
       </form>
     </div>
